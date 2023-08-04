@@ -5,8 +5,8 @@ const bodyParser = require('body-parser');
 const router = require('./routes');
 require('dotenv').config();
 
-const { PORT, MONGO_URL } = process.env;
-mongoose.connect(MONGO_URL, {
+const { PORT = 3000 } = process.env;
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
 }).then(() => {
   console.log('connected to db');
