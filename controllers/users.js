@@ -22,7 +22,7 @@ module.exports.getUserById = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send(`Получение пользователя с некорректным id: ${id}.`);
+        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: `Получение пользователя с некорректным id: ${id}.`});
       }
       return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
     });

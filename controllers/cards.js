@@ -42,8 +42,8 @@ module.exports.deleteCardById = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send('Получение карточки с некорректным id');
-      };
+        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: 'Получение карточки с некорректным id'});
+      }
       return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error')
     })
 };
@@ -60,7 +60,7 @@ module.exports.putLikes = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send('Переданы некорректные данные для постановки лайка')}
+        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка'})}
       return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
     });
 }
@@ -77,7 +77,7 @@ module.exports.deleteLikes = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send('Переданы некорректные данные для постановки лайка')}
+        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка'})}
       return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
     });
 }
