@@ -20,7 +20,10 @@ module.exports.getUserById = (req, res) => {
       }
       return res.status(http2.constants.HTTP_STATUS_OK).send(user);
     })
-    .catch(() => {
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send(`Получение пользователя с некорректным id: ${id}.`);
+      }
       return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
     });
 };
@@ -53,7 +56,7 @@ module.exports.updateProfile = (req, res) => {
       return res.status(http2.constants.HTTP_STATUS_OK).send(user);
     })
     .catch((err) => {
-      if(err.name === 'ValidationError') {
+      if (err.name === 'ValidationError') {
         return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({
           message: `${Object.values(err.errors).map(() => err.message).join(', ')}`
         });

@@ -17,7 +17,7 @@ module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   return Card.create({ name, link, owner })
     .then((card) => {
-      return res.status(http2.constants.HTTP_STATUS_CREATED).send(card)
+      return res.status(http2.constants.HTTP_STATUS_OK).send(card)
     })
     .catch((err) => {
       console.log(err);
@@ -33,39 +33,30 @@ module.exports.createCard = (req, res) => {
 // удалить карточку
 module.exports.deleteCardById = (req, res) => {
   const { cardId } = req.params;
-  return Card.findById(cardId)
+  return Card.findByIdAndRemove(cardId)
     .then((card) => {
       if (!card) {
         return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена.' })
       }
-      return Card.findByIdAndRemove(cardId)
-        .then((removedCard) => res.status(http2.constants.HTTP_STATUS_OK).send(removedCard))
-        .catch(() => {
-          return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
-        });
-  })
-  .catch(() => {
-    return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error')
-  })
+      return res.status(http2.constants.HTTP_STATUS_OK).send(card)
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send('Получение карточки с некорректным id');
+      };
+      return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error')
+    })
 };
 
 // поставть лайк
 module.exports.putLikes = (req, res) => {
   const { cardId } = req.params;
-  Card.findById(cardId)
+  Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
         return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена.' })
       }
-      return Card.findByIdAndUpdate(
-        req.params.cardId,
-        { $addToSet: { likes: req.user._id } },
-        { new: true },
-      )
-        .then(() => res.status(http2.constants.HTTP_STATUS_OK).send(card))
-        .catch(() => {
-          return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
-        });
+      return res.status(http2.constants.HTTP_STATUS_OK).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -77,20 +68,12 @@ module.exports.putLikes = (req, res) => {
 // удалить лайк
 module.exports.deleteLikes = (req, res) => {
   const { cardId } = req.params;
-  Card.findById(cardId)
+  Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
         return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена.' })
       }
-      return Card.findByIdAndUpdate(
-        req.params.cardId,
-        { $addToSet: { likes: req.user._id } },
-        { new: true },
-      )
-        .then(() => res.status(http2.constants.HTTP_STATUS_OK).send(card))
-        .catch(() => {
-          return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
-        });
+      return res.status(http2.constants.HTTP_STATUS_OK).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
