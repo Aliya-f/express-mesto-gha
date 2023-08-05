@@ -6,9 +6,9 @@ module.exports.getCards = (req, res) => {
   return Card.find().then((cards) => {
     return res.status(http2.constants.HTTP_STATUS_OK).send(cards);
   })
-  .catch(() => {
-    return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
-  })
+    .catch(() => {
+      return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
+    });
 };
 
 // создание карточки

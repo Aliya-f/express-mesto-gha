@@ -35,8 +35,8 @@ module.exports.createUser = (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      if (err.name === "ValidationError") {
-        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: `${Object.values(err.errors).map((err) => err.message).join(", ")}` });
+      if (err.name === 'ValidationError') {
+        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: `${Object.values(err.errors).map(() => err.message).join(', ')}` });
       }
       return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
     });
