@@ -17,7 +17,7 @@ module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   return Card.create({ name, link, owner })
     .then((card) => {
-      return res.status(http2.constants.HTTP_STATUS_OK).send(card)
+      return res.status(http2.constants.HTTP_STATUS_CREATED).send(card)
     })
     .catch((err) => {
       console.log(err);
