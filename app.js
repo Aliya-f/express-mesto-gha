@@ -1,4 +1,4 @@
-const path = require('path');
+// const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -16,21 +16,21 @@ mongoose.connect(DB_URL, {
 const app = express();
 
 app.use(helmet());
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
 app.use((req, res, next) => {
   req.user = {
-    _id: '64c8f77a2ce9845c9b6b9595'
+    _id: '64c8f77a2ce9845c9b6b9595',
   };
   next();
 });
 app.use(router);
 app.use('*', (req, res) => {
   res.status(404).send({
-    message: 'Страница не найдена'
-  })
-})
+    message: 'Страница не найдена',
+  });
+});
 
 app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`)
+  console.log(`App listening on port ${PORT}`);
 });

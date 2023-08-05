@@ -22,7 +22,7 @@ module.exports.getUserById = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: `Получение пользователя с некорректным id: ${id}.`});
+        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: `Получение пользователя с некорректным id: ${id}.` });
       }
       return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
     });
@@ -36,9 +36,7 @@ module.exports.createUser = (req, res) => {
     .catch((err) => {
       console.log(err);
       if (err.name === "ValidationError") {
-        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({
-         message: `${Object.values(err.errors).map((err) => err.message).join(", ")}`
-        })
+        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: `${Object.values(err.errors).map((err) => err.message).join(", ")}` });
       }
       return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
     });
@@ -50,16 +48,13 @@ module.exports.updateProfile = (req, res) => {
   return User.findByIdAndUpdate(id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({
-          message: `Пользователь по указанному id: ${id} не найден.`})
+        return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: `Пользователь по указанному id: ${id} не найден.` });
       }
       return res.status(http2.constants.HTTP_STATUS_OK).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({
-          message: `${Object.values(err.errors).map(() => err.message).join(', ')}`
-        });
+        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: `${Object.values(err.errors).map(() => err.message).join(', ')}` });
       }
       return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
     });
@@ -71,18 +66,13 @@ module.exports.updateAvatar = (req, res) => {
   return User.findByIdAndUpdate(id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({
-          message: `Пользователь по указанному id: ${id} не найден.`
-        })
-      } else {
-        res.status(http2.constants.HTTP_STATUS_OK).send(user);
+        return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: `Пользователь по указанному id: ${id} не найден.` });
       }
+      return res.status(http2.constants.HTTP_STATUS_OK).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({
-          message: `${Object.values(err.errors).map(() => err.message).join(', ')}`
-        })
+        return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: `${Object.values(err.errors).map(() => err.message).join(', ')}` });
       }
       return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
     });

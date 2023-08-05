@@ -5,4 +5,4 @@ const cardsRouter = require('./cards');
 router.use('/users', userRouter);
 router.use('/cards', cardsRouter);
 
-module.exports = router
+module.exports = router;

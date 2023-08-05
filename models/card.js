@@ -20,7 +20,7 @@ const cardSchema = new Schema({
   owner: {
     type: Schema.Types.ObjectId,
     reference: 'user',
-    //required: true,
+    // required: true,
   },
   likes: [{
     type: Schema.Types.ObjectId,
@@ -32,4 +32,4 @@ const cardSchema = new Schema({
   },
 });
 
-module.exports = mangoose.model('Card', cardSchema)
+module.exports = mangoose.model('Card', cardSchema);
