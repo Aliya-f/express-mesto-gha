@@ -3,11 +3,11 @@ const Card = require('../models/card');
 
 // отрисовка карточек
 module.exports.getCards = (req, res) => {
-  return Card.find().then((cards) => {
-    return res.status(http2.constants.HTTP_STATUS_OK).send(cards);
+  Card.find().then((cards) => {
+    res.status(http2.constants.HTTP_STATUS_OK).send(cards);
   })
     .catch(() => {
-      return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
+      res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
     });
 };
 
@@ -17,7 +17,7 @@ module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   return Card.create({ name, link, owner })
     .then((card) => {
-      return res.status(http2.constants.HTTP_STATUS_CREATED).send(card);
+      res.status(http2.constants.HTTP_STATUS_CREATED).send(card);
     })
     .catch((err) => {
       console.log(err);

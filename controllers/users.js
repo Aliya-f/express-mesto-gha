@@ -2,12 +2,12 @@ const http2 = require('http2');
 const User = require('../models/user');
 
 module.exports.getUsers = (req, res) => {
-  return User.find()
+  User.find()
     .then((users) => {
-      return res.status(http2.constants.HTTP_STATUS_OK).send(users);
+      res.status(http2.constants.HTTP_STATUS_OK).send(users);
     })
     .catch(() => {
-      return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
+      res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
     });
 };
 
@@ -29,9 +29,9 @@ module.exports.getUserById = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  return User.create({ ...req.body })
+  User.create({ ...req.body })
     .then((user) => {
-      return res.status(http2.constants.HTTP_STATUS_CREATED).send(user);
+      res.status(http2.constants.HTTP_STATUS_CREATED).send(user);
     })
     .catch((err) => {
       console.log(err);
