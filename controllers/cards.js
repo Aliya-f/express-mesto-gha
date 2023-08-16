@@ -38,6 +38,9 @@ module.exports.deleteCardById = (req, res) => {
       if (!card) {
         return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена.' });
       }
+      if (!card.owner.equals(req.user._id)) {
+        return res.status(http2.constants.HTTP_STATUS_FORBIDDEN).send({ message: 'Вы не можете удалить чужую карточку' });
+      }
       return res.status(http2.constants.HTTP_STATUS_OK).send(card);
     })
     .catch((err) => {
