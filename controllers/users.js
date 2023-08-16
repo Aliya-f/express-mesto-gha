@@ -12,11 +12,13 @@ const SALT_ROUNDS = 10;
 
 // получение списка пользователей
 module.exports.getUsers = (req, res, next) => {
-  User.find()
+  User.find({})
     .then((users) => {
       res.status(http2.constants.HTTP_STATUS_OK).send(users);
     })
-    .catch(next);
+    .catch((err) => {
+      next(err);
+    });
 };
 
 // поиск пользователя по ид

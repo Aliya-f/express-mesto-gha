@@ -15,8 +15,12 @@ const auth = (req, res, next) => {
     // верификация токена
     payload = jwt.verify(token, 'unique-secret-key');
   } catch (err) {
-    return next(new AuthError('Необходима авторизация'));
+    if (err.name === 'JsonWebTokenError') {
+      return next(new AuthError('Необходима авторизация'));
+    }
+    return next(err);
   }
+
   req.user = payload; // записываем пейлоуд в объект запроса
   next(); // пропускаем запрос дальше
 };

@@ -30,7 +30,7 @@ const cardSchema = new mongoose.Schema({
       validator: validator.isEmail,
     },
   },
-  passvord: {
+  password: {
     type: String,
     required: true,
     select: false,
