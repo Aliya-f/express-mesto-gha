@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
 const router = require('./routes');
+const auth = require('./middlewares/auth');
 
 require('dotenv').config();
 
@@ -22,6 +23,7 @@ app.use(helmet());
 app.use(bodyParser.json());
 app.use(errors());
 app.use(router);
+app.use(auth);
 
 app.use(errors());
 app.use('*', (req, res) => {
