@@ -2,19 +2,6 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 
 const cardSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    validate: {
-      validator: validator.isEmail,
-    },
-  },
-  password: {
-    type: String,
-    required: true,
-    select: false,
-  },
   name: {
     type: String,
     minlength: [2, 'Минимальная длина поля "name" - 2'],
@@ -34,6 +21,19 @@ const cardSchema = new mongoose.Schema({
       message: 'Некорректный URL',
     },
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    validate: {
+      validator: validator.isEmail,
+    },
+  },
+  password: {
+    type: String,
+    required: true,
+    select: false,
   },
 });
 

@@ -139,8 +139,8 @@ module.exports.login = (req, res, next) => {
 
 // получениe информации о пользователе
 module.exports.getCurrentUser = (req, res, next) => {
-  const { id, password } = req.params;
-  User.findById(id)
+  const { email, password } = req.body;
+  User.findOne(email)
     .then((user) => {
       if (!user) {
         return next(new NotFoundError('user not found' ));
