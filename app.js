@@ -2,10 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
-const { errors } = require('celebrate');
 const router = require('./routes');
 const { errorHandler } = require('./middlewares/error-handler');
-//const auth = require('./middlewares/auth');
 
 require('dotenv').config();
 
@@ -24,7 +22,7 @@ app.use(helmet());
 app.use(bodyParser.json());
 
 app.use(router);
-// app.use(auth);
+
 app.use(errorHandler);
 app.use('*', (req, res) => {
   res.status(404).send({

@@ -33,9 +33,9 @@ router.post(
   }),
   login,
 );
-
-router.use('/users', userRouter);
 router.use(auth);
+router.use('/users', userRouter);
+
 router.use('/cards', cardsRouter);
 
 module.exports = router;

@@ -7,16 +7,16 @@ const NotFoundError = require('../errors/NotFoundError');
 const AuthError = require('../errors/AuthError');
 const ForbiddenError = require('../errors/ForbiddenError');
 const ValidationError = require('../errors/ValidationError');
-const { getJwtToken, isAuth } = require('../utils/jwt');
+const { getJwtToken } = require('../utils/jwt');
 
 const saltRounds = 10;
 
 // получение списка пользователей
 module.exports.getUsers = (req, res, next) => {
-  const token = req.headers.authorization;
-  if (!isAuth(token)) {
-    return next(new AuthError('Необходима авторизация'));
-  }
+  // const token = req.headers.authorization;
+  // if (!isAuth(token)) {
+  //   return next(new AuthError('Необходима авторизация'));
+  // }
   return User.find()
     .then((users) => {
       res.status(http2.constants.HTTP_STATUS_OK).send(users);
@@ -57,14 +57,14 @@ module.exports.createUser = (req, res, next) => {
     }))
     .then(({ name, about, avatar, email }) => {
       delete password;
-      res.status(http2.constants.HTTP_STATUS_CREATED).send({ name, about, avatar, email });
+      return res.status(http2.constants.HTTP_STATUS_CREATED).send({ name, about, avatar, email });
     })
     .catch((err) => {
       console.log(err);
       if (err.name === 'ValidationError') {
-        next(new ValidationError(`Проверьте правильность заполнения полей ${Object.values(err.errors).map(() => err.message).join(', ')}`));
+        return next(new ValidationError(`Проверьте правильность заполнения полей ${Object.values(err.errors).map(() => err.message).join(', ')}`));
       } else if (err.code === 11000) {
-        next(new ConflictError(`Пользователь с таким email: ${email} уже существует`));
+        return next(new ConflictError(`Пользователь с таким email: ${email} уже существует`));
       } else {
         next(err);
       }
