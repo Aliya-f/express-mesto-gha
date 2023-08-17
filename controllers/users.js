@@ -1,18 +1,23 @@
 const http2 = require('http2');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
-const UnauthorizedError = require('../errors/AuthError');
+const AuthError = require('../errors/AuthError');
+const ForbiddenError = require('../errors/ForbiddenError');
 const ValidationError = require('../errors/ValidationError');
+const { getJwtToken, isAuth } = require('../utils/jwt');
 
-const SALT_ROUNDS = 10;
+const saltRounds = 10;
 
 // получение списка пользователей
 module.exports.getUsers = (req, res, next) => {
-  User.find({})
+  const token = req.headers.authorization;
+  if (!isAuth(token)) {
+    return next(new AuthError('Необходима авторизация'));
+  }
+  return User.find()
     .then((users) => {
       res.status(http2.constants.HTTP_STATUS_OK).send(users);
     })
@@ -27,7 +32,7 @@ module.exports.getUserById = (req, res, next) => {
   return User.findById(id)
     .then((user) => {
       if (!user) {
-        next(new NotFoundError('user not found'));
+        next(new NotFoundError({ message: 'user not found' }));
       }
       return res.status(http2.constants.HTTP_STATUS_OK).send(user);
     })
@@ -46,19 +51,20 @@ module.exports.createUser = (req, res, next) => {
     name, about, avatar, email, password,
   } = req.body;
 
-  bcrypt.hash(password, SALT_ROUNDS)
+  bcrypt.hash(password, saltRounds)
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
     }))
-    .then((user) => {
-      res.status(http2.constants.HTTP_STATUS_CREATED).send(user);
+    .then(({ _id }) => {
+      delete password;
+      res.status(http2.constants.HTTP_STATUS_CREATED).send({ id: _id });
     })
     .catch((err) => {
       console.log(err);
       if (err.name === 'ValidationError') {
-        next(new ValidationError(`Пожалуйста, проверьте правильность заполнения полей ${Object.values(err.errors).map(() => err.message).join(', ')}`));
-      } if (err.code === 11000) {
-        next(new ConflictError('Пользователь с таким email уже существует'));
+        next(new ValidationError(`Проверьте правильность заполнения полей ${Object.values(err.errors).map(() => err.message).join(', ')}`));
+      } else if (err.code === 11000) {
+        next(new ConflictError(`Пользователь с таким email: ${email} уже существует`));
       } else {
         next(err);
       }
@@ -109,24 +115,21 @@ module.exports.updateAvatar = (req, res, next) => {
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return next(new BadRequestError('Не передан email или пароль'));
-  }
   return User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return next(new UnauthorizedError('Такого пользователя не существует'));
+        return next(new AuthError(`Такого пользователя ${email} не существует`));
       }
       return bcrypt.compare(password, user.password)
         .then((correctPassword) => {
           if (!correctPassword) {
-            return next(new UnauthorizedError('Неверный пользователь или пароль.'));
+            return next(new AuthError('Неверный пароль'));
           }
-          const token = jwt.sign(
+          const token = getJwtToken(
             { _id: user._id },
             { expiresIn: '7d' },
           );
-          return res.send({ jwt: token });
+          return res.status(http2.constants.HTTP_STATUS_OK).send({ jwt: token });
         });
     })
     .catch((error) => {
@@ -136,20 +139,21 @@ module.exports.login = (req, res, next) => {
 
 // получениe информации о пользователе
 module.exports.getCurrentUser = (req, res, next) => {
-  const { id } = req.params;
+  const { id, password } = req.params;
   User.findById(id)
     .then((user) => {
       if (!user) {
-        next(new NotFoundError('user not found'));
+        return next(new NotFoundError('user not found' ));
       } else {
-        res.status(http2.constants.HTTP_STATUS_OK).send(user);
+        delete password;
+        return res.status(http2.constants.HTTP_STATUS_OK).send(user);
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Переданы некорректные данные'));
+        next(new BadRequestError({ message: 'Переданы некорректные данные' }));
       } else if (err.message === 'NotFound') {
-        next(new NotFoundError('user not found'));
+        next(new NotFoundError({ message: 'user not found' }));
       } else next(err);
     });
 };
