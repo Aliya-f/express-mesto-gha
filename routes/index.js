@@ -2,23 +2,13 @@ const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const userRouter = require('./users');
 const cardsRouter = require('./cards');
-// const auth = require('../middlewares/auth');
+const auth = require('../middlewares/auth');
 const validationRegex = require('../utils/validationRegex');
 const {
   createUser,
   login,
 } = require('../controllers/users');
 
-router.post(
-  '/signin',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required(),
-    }),
-  }),
-  login,
-);
 router.post(
   '/signup',
   celebrate({
@@ -32,7 +22,20 @@ router.post(
   }),
   createUser,
 );
+
+router.post(
+  '/signin',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required(),
+    }),
+  }),
+  login,
+);
+
 router.use('/users', userRouter);
+router.use(auth);
 router.use('/cards', cardsRouter);
 
 module.exports = router;

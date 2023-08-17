@@ -32,7 +32,7 @@ module.exports.getUserById = (req, res, next) => {
   return User.findById(id)
     .then((user) => {
       if (!user) {
-        next(new NotFoundError({ message: 'user not found' }));
+        next(new NotFoundError('user not found'));
       }
       return res.status(http2.constants.HTTP_STATUS_OK).send(user);
     })
@@ -55,9 +55,9 @@ module.exports.createUser = (req, res, next) => {
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
     }))
-    .then(({ _id }) => {
+    .then(({ name, about, avatar, email }) => {
       delete password;
-      res.status(http2.constants.HTTP_STATUS_CREATED).send({ id: _id });
+      res.status(http2.constants.HTTP_STATUS_CREATED).send({ name, about, avatar, email });
     })
     .catch((err) => {
       console.log(err);
@@ -151,9 +151,9 @@ module.exports.getCurrentUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError({ message: 'Переданы некорректные данные' }));
+        next(new BadRequestError('Переданы некорректные данные'));
       } else if (err.message === 'NotFound') {
-        next(new NotFoundError({ message: 'user not found' }));
+        next(new NotFoundError('user not found'));
       } else next(err);
     });
 };
