@@ -31,23 +31,39 @@ module.exports.createCard = (req, res) => {
 };
 
 // удалить карточку
-module.exports.deleteCardById = (req, res) => {
+module.exports.deleteCardById = (req, res, next) => {
+  // try {
+  //   const card = await Card.findById(req.params.cardId);
+  //   if (!card) {
+  //     return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена.' });
+  //   }
+
+  //   if (card.owner.toString() !== req.user._id) {
+  //     return res.status(http2.constants.HTTP_STATUS_FORBIDDEN).send({ message: 'Вы не можете удалить чужую карточку' })
+  //   }
+
+  //   await Card.deleteOne(card._id);
+  //   return res.send(card);
+  // } catch (err) {
+  //   return next(err);
+  // }
+  const { _id } = req.user;
   const { cardId } = req.params;
   return Card.findByIdAndRemove(cardId)
     .then((card) => {
       if (!card) {
         return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена.' });
       }
-      if (!card.owner.equals(req.user._id)) {
+      if (card.owner !== _id) {
         return res.status(http2.constants.HTTP_STATUS_FORBIDDEN).send({ message: 'Вы не можете удалить чужую карточку' });
       }
-      return res.status(http2.constants.HTTP_STATUS_OK).send(card);
+      return res.status(http2.constants.HTTP_STATUS_OK).send({ message: 'Карточка успешно удалена' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: 'Получение карточки с некорректным id' });
       }
-      return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
+      return next(err);
     });
 };
 
@@ -70,9 +86,9 @@ module.exports.putLikes = (req, res) => {
 };
 
 // удалить лайк
-module.exports.deleteLikes = (req, res) => {
+module.exports.deleteLikes = (req, res, next) => {
   const { cardId } = req.params;
-  Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
+  Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
         return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена.' });
@@ -83,6 +99,6 @@ module.exports.deleteLikes = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка' });
       }
-      return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send('Server error');
+      return next(err);
     });
 };

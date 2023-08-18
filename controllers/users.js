@@ -13,10 +13,6 @@ const saltRounds = 10;
 
 // получение списка пользователей
 module.exports.getUsers = (req, res, next) => {
-  // const token = req.headers.authorization;
-  // if (!isAuth(token)) {
-  //   return next(new AuthError('Необходима авторизация'));
-  // }
   return User.find()
     .then((users) => {
       res.status(http2.constants.HTTP_STATUS_OK).send(users);
