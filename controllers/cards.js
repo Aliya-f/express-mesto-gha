@@ -49,15 +49,21 @@ module.exports.deleteCardById = (req, res, next) => {
   // }
   const { _id } = req.user;
   const { cardId } = req.params;
-  return Card.findByIdAndRemove(cardId)
+  return Card.findById(cardId)
     .then((card) => {
       if (!card) {
         return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена.' });
       }
-      if (card.owner.toString() !== _id) {
+      if (card.owner !== _id) {
         return res.status(http2.constants.HTTP_STATUS_FORBIDDEN).send({ message: 'Вы не можете удалить чужую карточку' });
       }
-      return res.status(http2.constants.HTTP_STATUS_OK).send({ message: 'Карточка успешно удалена' });
+      return Card.findByIdAndRemove(cardId)
+        .then(() => {
+          return res.status(http2.constants.HTTP_STATUS_OK).send({ message: 'Карточка успешно удалена' })
+        })
+        .catch((error) => {
+          next(error);
+        });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
