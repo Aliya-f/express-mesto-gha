@@ -54,8 +54,8 @@ module.exports.createUser = (req, res, next) => {
       })
     })
     .then(({ name, about, avatar, email }) => {
-    //  delete password;
-      return res.status(http2.constants.HTTP_STATUS_CREATED).send({ name, about, avatar, email, password: '***' });
+      delete password;
+      return res.status(http2.constants.HTTP_STATUS_CREATED).send({ name, about, avatar, email });
     })
     .catch((err) => {
       console.log(err);

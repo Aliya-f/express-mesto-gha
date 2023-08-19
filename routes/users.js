@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const validationRegex = require('../utils/validationRegex');
 
 const {
   getUsers,
@@ -8,7 +9,6 @@ const {
   updateProfile,
   updateAvatar,
 } = require('../controllers/users');
-const validationRegex = require('../utils/validationRegex');
 
 router.get('/', getUsers);
 router.get(
