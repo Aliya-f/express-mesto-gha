@@ -13,7 +13,7 @@ module.exports.getCards = (req, res) => {
 
 // создание карточки
 module.exports.createCard = (req, res) => {
-  const { owner } = (req.user._id); // _id станет доступен
+  const owner = (req.user._id); // _id станет доступен
   const { name, link } = req.body;
   return Card.create({ name, link, owner })
     .then((card) => {
@@ -32,21 +32,6 @@ module.exports.createCard = (req, res) => {
 
 // удалить карточку
 module.exports.deleteCardById = (req, res, next) => {
-  // try {
-  //   const card = await Card.findById(req.params.cardId);
-  //   if (!card) {
-  //     return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена.' });
-  //   }
-
-  //   if (card.owner.toString() !== req.user._id) {
-  //     return res.status(http2.constants.HTTP_STATUS_FORBIDDEN).send({ message: 'Вы не можете удалить чужую карточку' })
-  //   }
-
-  //   await Card.deleteOne(card._id);
-  //   return res.send(card);
-  // } catch (err) {
-  //   return next(err);
-  // }
   const { _id } = req.user;
   const { cardId } = req.params;
   return Card.findById(cardId)
@@ -54,15 +39,15 @@ module.exports.deleteCardById = (req, res, next) => {
       if (!card) {
         return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена.' });
       }
-      if (card.owner !== _id) {
+      if (card.owner.toString() !== _id) {
         return res.status(http2.constants.HTTP_STATUS_FORBIDDEN).send({ message: 'Вы не можете удалить чужую карточку' });
       }
       return Card.findByIdAndRemove(cardId)
         .then(() => {
-          return res.status(http2.constants.HTTP_STATUS_OK).send({ message: 'Карточка успешно удалена' })
+          res.status(http2.constants.HTTP_STATUS_OK).send({ message: 'Карточка успешно удалена' });
         })
-        .catch((error) => {
-          next(error);
+        .catch((err) => {
+          next(err);
         });
     })
     .catch((err) => {
@@ -76,7 +61,7 @@ module.exports.deleteCardById = (req, res, next) => {
 // поставть лайк
 module.exports.putLikes = (req, res) => {
   const { cardId } = req.params;
-  Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
+  return Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
         return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена.' });
@@ -94,7 +79,7 @@ module.exports.putLikes = (req, res) => {
 // удалить лайк
 module.exports.deleteLikes = (req, res, next) => {
   const { cardId } = req.params;
-  Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, { new: true })
+  return Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
         return res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена.' });

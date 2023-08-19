@@ -15,10 +15,10 @@ const saltRounds = 10;
 module.exports.getUsers = (req, res, next) => {
   return User.find()
     .then((users) => {
-      res.status(http2.constants.HTTP_STATUS_OK).send(users);
+      return res.status(http2.constants.HTTP_STATUS_OK).send(users);
     })
     .catch((err) => {
-      next(err);
+      return next(err);
     });
 };
 
@@ -28,15 +28,15 @@ module.exports.getUserById = (req, res, next) => {
   return User.findById(id)
     .then((user) => {
       if (!user) {
-        next(new NotFoundError('user not found'));
+        return next(new NotFoundError('user not found'));
       }
       return res.status(http2.constants.HTTP_STATUS_OK).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError(`Получение пользователя с некорректным id: ${id}.`));
+        return next(new BadRequestError(`Получение пользователя с некорректным id: ${id}.`));
       } else {
-        next(err);
+        return next(err);
       }
     });
 };
@@ -47,10 +47,12 @@ module.exports.createUser = (req, res, next) => {
     name, about, avatar, email, password,
   } = req.body;
 
-  bcrypt.hash(password, saltRounds)
-    .then((hash) => User.create({
+  return bcrypt.hash(password, saltRounds)
+    .then((hash) => {
+      return User.create({
       name, about, avatar, email, password: hash,
-    }))
+      })
+    })
     .then(({ name, about, avatar, email }) => {
       delete password;
       return res.status(http2.constants.HTTP_STATUS_CREATED).send({ name, about, avatar, email });
@@ -62,7 +64,7 @@ module.exports.createUser = (req, res, next) => {
       } else if (err.code === 11000) {
         return next(new ConflictError(`Пользователь с таким email: ${email} уже существует`));
       } else {
-        next(err);
+        return next(err);
       }
     });
 };
@@ -74,15 +76,15 @@ module.exports.updateProfile = (req, res, next) => {
   return User.findByIdAndUpdate(id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        next(new NotFoundError(`Пользователь по указанному id: ${id} не найден.`));
+        return next(new NotFoundError(`Пользователь по указанному id: ${id} не найден.`));
       }
       return res.status(http2.constants.HTTP_STATUS_OK).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError(`${Object.values(err.errors).map(() => err.message).join(', ')}`));
+        return next(new ValidationError(`${Object.values(err.errors).map(() => err.message).join(', ')}`));
       } else {
-        next(err);
+        return next(err);
       }
     });
 };
@@ -94,15 +96,15 @@ module.exports.updateAvatar = (req, res, next) => {
   return User.findByIdAndUpdate(id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        next(new NotFoundError(`Пользователь по указанному id: ${id} не найден.`));
+        return next(new NotFoundError(`Пользователь по указанному id: ${id} не найден.`));
       }
       return res.status(http2.constants.HTTP_STATUS_OK).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError(`${Object.values(err.errors).map(() => err.message).join(', ')}`));
+        return next(new ValidationError(`${Object.values(err.errors).map(() => err.message).join(', ')}`));
       } else {
-        next(err);
+        return next(err);
       }
     });
 };
@@ -129,14 +131,14 @@ module.exports.login = (req, res, next) => {
         });
     })
     .catch((error) => {
-      next(error);
+      return next(error);
     });
 };
 
 // получениe информации о пользователе
 module.exports.getCurrentUser = (req, res, next) => {
-  const { email, password } = req.body;
-  User.findOne(email)
+  const { _id, password } = req.user;
+  return User.findById(_id)
     .then((user) => {
       if (!user) {
         return next(new NotFoundError('user not found' ));
@@ -147,9 +149,9 @@ module.exports.getCurrentUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Переданы некорректные данные'));
+        return next(new BadRequestError('Переданы некорректные данные'));
       } else if (err.message === 'NotFound') {
-        next(new NotFoundError('user not found'));
+        return next(new NotFoundError('user not found'));
       } else next(err);
     });
 };
