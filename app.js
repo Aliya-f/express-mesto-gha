@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
+const { errors } = require('celebrate');
 const router = require('./routes');
 const { errorHandler } = require('./middlewares/error-handler');
 
@@ -23,7 +24,8 @@ app.use(bodyParser.json());
 
 app.use(router);
 
-app.use(errorHandler);
+app.use(errors()); // обработчик ошибок celebrate
+app.use(errorHandler); // наш централизованный обработчик
 app.use('*', (req, res) => {
   res.status(404).send({
     message: 'Страница не найдена',
