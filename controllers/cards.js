@@ -46,9 +46,7 @@ module.exports.deleteCardById = (req, res, next) => {
         .then(() => {
           res.status(http2.constants.HTTP_STATUS_OK).send({ message: 'Карточка успешно удалена' });
         })
-        .catch((err) => {
-          next(err);
-        });
+        .catch(next);
     })
     .catch((err) => {
       if (err.name === 'CastError') {

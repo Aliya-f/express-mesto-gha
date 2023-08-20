@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const { errors } = require('celebrate');
 const router = require('./routes');
 const { errorHandler } = require('./middlewares/error-handler');
+const NotFoundError = require('./errors/NotFoundError');
 
 require('dotenv').config();
 
@@ -23,14 +24,12 @@ app.use(helmet());
 app.use(bodyParser.json());
 
 app.use(router);
+app.use('*', (next) => {
+  next(new NotFoundError('Страница не найдена'));
+});
 
 app.use(errors()); // обработчик ошибок celebrate
 app.use(errorHandler); // наш централизованный обработчик
-app.use('*', (req, res) => {
-  res.status(404).send({
-    message: 'Страница не найдена',
-  });
-});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
