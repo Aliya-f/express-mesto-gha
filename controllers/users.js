@@ -42,26 +42,24 @@ module.exports.createUser = (req, res, next) => {
     name, about, avatar, email, password,
   } = req.body;
 
-  return bcrypt.hash(password, saltRounds)
-    .then((hash) => {
-      User.create({
-        name, about, avatar, email, password: hash,
-      });
-    })
-    .then(() => {
-      // delete password;
+  bcrypt.hash(password, saltRounds)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    }))
+    .then((newUser) => {
       res.status(http2.constants.HTTP_STATUS_CREATED).send({
-        name, about, avatar, email,
+        name: newUser.name, about: newUser.about, avatar: newUser.avatar, email: newUser.email,
       });
     })
     .catch((err) => {
       console.log(err);
       if (err.name === 'ValidationError') {
-        return next(new ValidationError(`Проверьте правильность заполнения полей ${Object.values(err.errors).map(() => err.message).join(', ')}`));
-      } if (err.code === 11000) {
-        return next(new ConflictError(`Пользователь с таким email: ${email} уже существует`));
+        next(new ValidationError(`Проверьте правильность заполнения полей ${Object.values(err.errors).map(() => err.message).join(', ')}`));
+      } else if (err.code === 11000) {
+        next(new ConflictError(`Пользователь с таким email: ${email} уже существует`));
+      } else {
+        next(err);
       }
-      return next(err);
     });
 };
 
@@ -135,7 +133,6 @@ module.exports.getCurrentUser = (req, res, next) => {
       if (!user) {
         return next(new NotFoundError('user not found'));
       }
-      // delete password;
       return res.send(user);
     })
     .catch((err) => {

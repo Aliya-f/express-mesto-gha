@@ -24,7 +24,8 @@ app.use(helmet());
 app.use(bodyParser.json());
 
 app.use(router);
-app.use('*', (next) => {
+
+app.use('*', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
 });
 
